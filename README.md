@@ -1,4 +1,4 @@
-### Project Structure fron EasyMedia
+### The ezf2j project comes from EasyMedia, and the project structure and compatibility have been refactored and adjusted
 
 
 ```
@@ -226,4 +226,5 @@ That's it! After starting Spring Boot, the media server will run automatically, 
 ---
 
 **Happy using!** 🎊
+
 
