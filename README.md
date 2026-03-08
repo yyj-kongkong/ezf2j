@@ -1,4 +1,4 @@
-### Project Structure
+### Project Structure fron EasyMedia
 
 
 ```
@@ -226,3 +226,4 @@ That's it! After starting Spring Boot, the media server will run automatically, 
 ---
 
 **Happy using!** 🎊
+
