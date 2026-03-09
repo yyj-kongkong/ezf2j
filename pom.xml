@@ -4,13 +4,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.yyj</groupId>
+    <groupId>io.github.yyj-kongkong</groupId>
     <artifactId>ezf2j-parent</artifactId>
-    <version>2.0.0</version>
+    <version>1.0.1</version>
     <packaging>pom</packaging>
 
     <name>ezf2j-parent</name>
+    <description>Parent POM for ezf2j framework modules</description>
+    <url>https://github.com/yyj-kongkong/ezf2j</url>
 
+    <!-- 子模块管理（发布时保留，插件会自动处理多模块发布） -->
     <modules>
         <module>ezf2j-core</module>
         <module>ezf2j-spring-boot-starter</module>
@@ -18,29 +21,25 @@
 
     <properties>
         <java.version>21</java.version>
+        <!-- 关键：改为 Sonatype 标准的 server ID -->
+        <serverId>yyj-kongkong</serverId>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <!-- Spring Boot 版本 -->
         <spring-boot.version>3.2.5</spring-boot.version>
-
-        <!-- JavaCV/FFmpeg 版本 -->
         <javacv.version>1.5.10</javacv.version>
         <ffmpeg.version>6.1.1</ffmpeg.version>
-
-        <!-- Netty 版本 -->
         <netty.version>4.1.100.Final</netty.version>
-
-        <!-- Hutool 版本 -->
         <hutool.version>5.8.28</hutool.version>
-
-        <!-- Lombok 版本 -->
         <lombok.version>1.18.30</lombok.version>
-
-        <!-- SLF4J 版本 -->
         <slf4j.version>2.0.9</slf4j.version>
+
+        <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
+        <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
+        <maven-javadoc-plugin.version>3.6.0</maven-javadoc-plugin.version>
+        <central-publishing-plugin.version>0.9.0</central-publishing-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -53,71 +52,55 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- Core 模块 -->
             <dependency>
-                <groupId>com.yyj</groupId>
+                <groupId>io.github.yyj-kongkong</groupId>
                 <artifactId>ezf2j-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
-            <!-- Starter 模块 -->
             <dependency>
-                <groupId>com.yyj</groupId>
+                <groupId>io.github.yyj-kongkong</groupId>
                 <artifactId>ezf2j-spring-boot-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
-            <!-- JavaCV/FFmpeg -->
             <dependency>
                 <groupId>org.bytedeco</groupId>
                 <artifactId>javacv</artifactId>
                 <version>${javacv.version}</version>
             </dependency>
-
-
             <dependency>
                 <groupId>org.bytedeco</groupId>
                 <artifactId>ffmpeg</artifactId>
                 <version>${ffmpeg.version}-${javacv.version}</version>
                 <classifier>windows-x86_64</classifier>
             </dependency>
-
             <dependency>
                 <groupId>org.bytedeco</groupId>
                 <artifactId>ffmpeg</artifactId>
                 <version>${ffmpeg.version}-${javacv.version}</version>
                 <classifier>linux-x86_64</classifier>
             </dependency>
-
-            <!-- Netty -->
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>
                 <version>${netty.version}</version>
             </dependency>
-
-            <!-- Hutool 工具类 -->
             <dependency>
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-all</artifactId>
                 <version>${hutool.version}</version>
             </dependency>
-
-            <!-- Lombok -->
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
                 <optional>true</optional>
             </dependency>
-
-            <!-- SLF4J -->
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
@@ -127,234 +110,177 @@
         </dependencies>
     </dependencyManagement>
 
-
-
     <repositories>
         <repository>
             <id>aliyun</id>
             <name>Aliyun Maven Repository</name>
             <url>https://maven.aliyun.com/repository/public</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
         </repository>
     </repositories>
-
     <pluginRepositories>
         <pluginRepository>
             <id>aliyun</id>
             <name>Aliyun Maven Plugin Repository</name>
             <url>https://maven.aliyun.com/repository/public</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
         </pluginRepository>
     </pluginRepositories>
 
-
-
-
-
-
-
-
-
-
-
     <build>
+        <!-- 插件版本管理（仅声明版本，不激活） -->
         <pluginManagement>
             <plugins>
-                <!-- Maven 编译插件 -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.11.0</version>
-                    <configuration>
-                        <source>${java.version}</source>
-                        <target>${java.version}</target>
-                        <encoding>${project.build.sourceEncoding}</encoding>
-                        <compilerArgs>
-                            <arg>-parameters</arg>
-                        </compilerArgs>
-                    </configuration>
                 </plugin>
-
-                <!-- Maven 源码插件 -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>3.3.0</version>
-                    <executions>
-                        <execution>
-                            <id>attach-sources</id>
-                            <goals>
-                                <goal>jar-no-fork</goal>
-                            </goals>
-                        </execution>
-                    </executions>
+                    <version>${maven-source-plugin.version}</version>
                 </plugin>
-
-                <!-- Maven Javadoc 插件 -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.6.0</version>
-                    <configuration>
-                        <source>${java.version}</source>
-                        <encoding>${project.build.sourceEncoding}</encoding>
-                        <charset>${project.build.sourceEncoding}</charset>
-                        <docencoding>${project.build.sourceEncoding}</docencoding>
-                        <failOnError>false</failOnError>
-                        <additionalJOptions>
-                            <additionalJOption>-Xdoclint:none</additionalJOption>
-                        </additionalJOptions>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>attach-javadocs</id>
-                            <goals>
-                                <goal>jar</goal>
-                            </goals>
-                        </execution>
-                    </executions>
+                    <version>${maven-javadoc-plugin.version}</version>
                 </plugin>
-
-                <!-- Maven GPG 签名插件 -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-gpg-plugin</artifactId>
-                    <version>3.1.0</version>
-                    <executions>
-                        <execution>
-                            <id>sign-artifacts</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>sign</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <gpgArguments>
-                            <arg>--pinentry-mode</arg>
-                            <arg>loopback</arg>
-                        </gpgArguments>
-                    </configuration>
+                    <version>${maven-gpg-plugin.version}</version>
                 </plugin>
-
-                <!-- Maven Deploy 插件 -->
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-deploy-plugin</artifactId>
-                    <version>3.1.1</version>
-                    <configuration>
-                        <skip>false</skip>
-                    </configuration>
-                </plugin>
-
-                <!-- Nexus Staging Maven 插件（发布到 Maven Central） -->
-                <plugin>
-                    <groupId>org.sonatype.plugins</groupId>
-                    <artifactId>nexus-staging-maven-plugin</artifactId>
-                    <version>1.6.13</version>
-                    <extensions>true</extensions>
-                    <configuration>
-                        <serverId>ossrh</serverId>
-                        <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-                        <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                    </configuration>
-                </plugin>
-
-                <!-- Maven Surefire 插件（测试） -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.1.2</version>
-                    <configuration>
-                        <skipTests>false</skipTests>
-                        <includes>
-                            <include>**/*Test.java</include>
-                        </includes>
-                    </configuration>
-                </plugin>
-
-                <!-- Maven Jar 插件 -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.3.0</version>
-                    <configuration>
-                        <archive>
-                            <manifest>
-                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                            </manifest>
-                        </archive>
-                    </configuration>
+                    <groupId>org.sonatype.central</groupId>
+                    <artifactId>central-publishing-maven-plugin</artifactId>
+                    <version>${central-publishing-plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
 
+        <!-- 激活核心插件（全局生效） -->
         <plugins>
-            <!-- 统一使用 JDK 21 编译 -->
+            <!-- 编译插件 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
             </plugin>
 
-            <!-- 打包源码 -->
+            <!-- 源码打包（发布必需） -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
-            <!-- 生成 Javadoc -->
+            <!-- Javadoc 打包（发布必需，容错配置） -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <failOnError>false</failOnError>
+                    <additionalOptions>-Xdoclint:none</additionalOptions>
+                </configuration>
             </plugin>
         </plugins>
     </build>
 
-    <!-- 发布配置 -->
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
+    <!-- 发布配置（仅在 release 环境激活） -->
+    <profiles>
+        <profile>
+            <id>release</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <!-- GPG 签名（发布必需） -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <executable>D:\Program Files\GnuPG\bin\gpg.exe</executable>
+                            <skip>false</skip>
+                        </configuration>
+                    </plugin>
 
-    <!-- SCM 配置 -->
+                    <!-- Sonatype 新发布插件（核心） -->
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <!-- 与 settings.xml 中的 server id 一致 -->
+                            <publishingServerId>${serverId}</publishingServerId>
+                            <!-- 自动发布（多模块推荐开启） -->
+                            <autoPublish>true</autoPublish>
+                            <!-- 等待发布完成 -->
+                            <waitUntil>published</waitUntil>
+                            <!-- 忽略已发布的组件（多模块更新时避免重复发布） -->
+                            <ignorePublishedComponents>true</ignorePublishedComponents>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <!-- 必需元数据（发布审核必需） -->
     <scm>
-        <connection>scm:git:git://github.com/your-repo/ezf2j.git</connection>
-        <developerConnection>scm:git:ssh://github.com/your-repo/ezf2j.git</developerConnection>
-        <url>https://github.com/your-repo/ezf2j</url>
+        <connection>scm:git:https://github.com/yyj-kongkong/ezf2j.git</connection>
+        <developerConnection>scm:git:https://github.com/yyj-kongkong/ezf2j.git</developerConnection>
+        <url>https://github.com/yyj-kongkong/ezf2j</url>
         <tag>HEAD</tag>
     </scm>
 
-    <!-- 许可证配置 -->
     <licenses>
         <license>
-            <name>The Apache License, Version 2.0</name>
+            <name>The Apache Software License, Version 2.0</name>
             <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>Apache 2.0 License</comments>
         </license>
     </licenses>
 
-    <!-- 开发者信息 -->
     <developers>
         <developer>
+            <id>yyj-kongkong</id>
             <name>yangYIjun</name>
             <email>13278880577@163.com</email>
+            <url>https://github.com/yyj-kongkong</url>
+            <timezone>+8</timezone>
         </developer>
     </developers>
-
 </project>

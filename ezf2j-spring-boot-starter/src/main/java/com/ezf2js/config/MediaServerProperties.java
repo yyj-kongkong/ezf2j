@@ -3,84 +3,35 @@ package com.ezf2js.config;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/**
- * 媒体服务器配置属性
- * 从 application.yml 或 application.properties 加载配置
- *
- * @author ZJ
- */
 @Data
 @ConfigurationProperties(prefix = "ezf2j.media")
 public class MediaServerProperties {
 
-    /**
-     * 是否启用媒体服务（默认 true）
-     */
     private Boolean enabled = true;
 
-    /**
-     * 监听端口（默认 8866）
-     */
-    private Integer port = 8866;
+    private Integer port = 53251;
 
-    /**
-     * 监听主机地址（默认 0.0.0.0）
-     */
-    private String host = "0.0.0.0";
+    private String serverName = "EZ-F2J Media Server";
 
-    /**
-     * 网络超时时间（微秒，默认 15000000=15 秒）
-     */
-    private int netTimeout = 15000000;
+    private String flvPath = "/live";
 
-    /**
-     * 读写超时时间（微秒，默认 15000000=15 秒）
-     */
-    private int readOrWriteTimeout = Math.toIntExact(15000000L);
+    private String hlsPath = "/hls";
 
-    /**
-     * 无人观看是否自动关闭（默认 true）
-     */
-    private Boolean autoClose = true;
+    private String ffmpegPath = "ffmpeg";
 
-    /**
-     * 无人观看关闭时长（毫秒，默认 60000=60 秒）
-     */
-    private Long noClientsDuration = 60000L;
+    private String readOrWriteTimeout = "15000000";
 
-    /**
-     * 是否启用 FFmpeg（默认 false=JavaCV）
-     */
-    private Boolean enableFFmpeg = false;
+    private String netTimeout = "15000000";
 
-    /**
-     * FFmpeg 路径（可选，默认自动查找）
-     */
-    private String ffmpegPath;
+    private boolean autoClose = true;
 
-    /**
-     * 日志级别（默认 INFO）
-     */
-    private int logLevel = 3;
+    private long noClientsDuration = 60000L;
 
-    /**
-     * HLS 配置
-     */
-    private HlsConfig hls = new HlsConfig();
+    private boolean enableFFmpeg = false;
 
-    /**
-     * HLS 配置内部类
-     */
-    @Data
-    public static class HlsConfig {
-        /**
-         * HLS 监听端口（默认 8866）
-         */
-        private Integer port = 8866;
+    private boolean enableHls = false;
 
-        /**
-         * HLS 主机地址（默认 localhost）
-         */
-        private String host = "localhost";
-    }
+    private Integer threadPoolCoreSize;
+
+    private Integer threadPoolMaxSize;
 }

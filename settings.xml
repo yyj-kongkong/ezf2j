@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+    <!-- 本地仓库路径（保持你的原有配置） -->
+    <localRepository>C:/Users/groovy/.m2/repository</localRepository>
+    <!-- 阿里云镜像（加速依赖下载） -->
+    <mirrors>
+        <mirror>
+            <id>aliyun-nexus</id>
+            <mirrorOf>central</mirrorOf>
+            <name>Aliyun Maven Central Mirror</name>
+            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+        </mirror>
+    </mirrors>
+
+    <profiles>
+        <!-- 激活发布到Maven Central的配置 -->
+        <profile>
+            <id>yyj-kongkong</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <gpg.executable>D:\Program Files\GnuPG\bin\gpg.exe</gpg.executable>
+<!--                <gpg.executable>gpg</gpg.executable>-->
+<!--                <gpg.passphrase>你的GPG密码（若启用签名需填写）</gpg.passphrase>-->
+            </properties>
+        </profile>
+    </profiles>
+
+    <servers>
+        <server>
+            <id>yyj-kongkong</id> <!-- 必须与pom.xml中distributionManagement的repository.id一致 -->
+            <username>BLI1Ov</username> <!-- 你的Sonatype用户名 -->
+            <password>W2DRtSVMI0e0szx6kWWFeiDFqUu9eFMK6</password> <!-- 你的Sonatype密码/令牌 -->
+        </server>
+    </servers>
+</settings>

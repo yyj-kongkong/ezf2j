@@ -1,14 +1,13 @@
 package com.ezf2js.autoconfigure;
 
-import com.ezf2jc.config.BaseMediaConfig;
-import com.ezf2jc.config.DefaultMediaConfig;
-import com.ezf2jc.engine.MediaEngine;
-import com.ezf2jc.engine.StreamManager;
-import com.ezf2jc.loader.MediaServerLoader;
-import com.ezf2jc.server.FlvHandler;
-import com.ezf2jc.server.MediaServer;
-import com.ezf2jc.service.HlsService;
-import com.ezf2jc.service.MediaService;
+import com.ez2fj.EZF2JEngine;
+import com.ez2fj.common.EZF2JConfig;
+import com.ez2fj.init.InitConfig;
+import com.ez2fj.server.FlvHandler;
+import com.ez2fj.server.MediaServer;
+import com.ez2fj.service.CameraService;
+import com.ez2fj.service.HlsService;
+import com.ez2fj.service.MediaService;
 import com.ezf2js.config.MediaServerProperties;
 import com.ezf2js.engine.SpringMediaEngine;
 import lombok.extern.slf4j.Slf4j;
@@ -20,82 +19,54 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * 媒体服务器自动配置
- * Spring Boot 启动时自动初始化媒体服务
- *
- * @author ZJ
- */
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 @Slf4j
 @Configuration
-@ConditionalOnClass({MediaService.class, MediaServer.class})
+@ConditionalOnClass({MediaService.class, MediaServer.class, CameraService.class})
 @EnableConfigurationProperties(MediaServerProperties.class)
 @ConditionalOnProperty(prefix = "ezf2j.media", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class MediaServerAutoConfiguration {
 
-    /**
-     * 配置属性
-     */
     @Autowired
     private MediaServerProperties properties;
 
-    /**
-     * 创建媒体配置 Bean
-     * @return BaseMediaConfig 实例
-     */
     @Bean
-    @ConditionalOnMissingBean(BaseMediaConfig.class)
-    public BaseMediaConfig mediaConfig() {
-        log.info("初始化媒体服务器配置...");
+    @ConditionalOnMissingBean(InitConfig.class)
+    public InitConfig initConfig() {
+        log.info("📋 初始化 EZF2J 配置...");
 
-        DefaultMediaConfig config = new DefaultMediaConfig();
+        InitConfig config = InitConfig.builder()
+                .port(properties.getPort())
+                .serverName(properties.getServerName())
+                .flvPath(properties.getFlvPath())
+                .hlsPath(properties.getHlsPath())
+                .ffmpegPath(properties.getFfmpegPath())
+                .readOrWriteTimeout(properties.getReadOrWriteTimeout())
+                .netTimeout(properties.getNetTimeout())
+                .autoClose(properties.isAutoClose())
+                .noClientsDuration(properties.getNoClientsDuration())
+                .enableFFmpeg(properties.isEnableFFmpeg())
+                .enableHls(properties.isEnableHls())
+                .build();
 
-        // 从配置文件加载配置
-        if (properties.getPort() != null) {
-            config.setPort(properties.getPort());
-        }
-        if (properties.getHost() != null) {
-            config.setHost(properties.getHost());
-        }
-        if (properties.getNetTimeout() >0) {
-            config.setNetTimeout(properties.getNetTimeout());
-        }
-        if (properties.getReadOrWriteTimeout() >0) {
-            config.setReadOrWriteTimeout(properties.getReadOrWriteTimeout());
-        }
-        if (properties.getAutoClose() != null) {
-            config.setAutoClose(properties.getAutoClose());
-        }
-        if (properties.getNoClientsDuration() != null) {
-            config.setNoClientsDuration(properties.getNoClientsDuration());
-        }
-        if (properties.getEnableFFmpeg() != null) {
-            config.setEnableFFmpeg(properties.getEnableFFmpeg());
-        }
-        if (properties.getFfmpegPath() != null) {
-            config.setFfmpegPath(properties.getFfmpegPath());
-        }
-        if (properties.getLogLevel() >0) {
-            config.setLogLevel(properties.getLogLevel());
-        }
-
-        // HLS 配置
-        if (properties.getHls() != null) {
-            if (properties.getHls().getPort() != null) {
-                config.getHlsConfig().setPort(properties.getHls().getPort());
-            }
-            if (properties.getHls().getHost() != null) {
-                config.getHlsConfig().setHost(properties.getHls().getHost());
-            }
+        if (properties.getThreadPoolCoreSize() != null && properties.getThreadPoolMaxSize() != null) {
+            ThreadPoolExecutor executor = new ThreadPoolExecutor(
+                    properties.getThreadPoolCoreSize(),
+                    properties.getThreadPoolMaxSize(),
+                    60, TimeUnit.SECONDS,
+                    new LinkedBlockingDeque<>()
+            );
+            config.setThreadPoolExecutor(executor);
+            log.info("   自定义线程池：core={}, max={}", 
+                    properties.getThreadPoolCoreSize(), properties.getThreadPoolMaxSize());
         }
 
         return config;
     }
 
-    /**
-     * 创建 FlvHandler Bean
-     * @return FlvHandler 实例
-     */
     @Bean
     @ConditionalOnMissingBean(FlvHandler.class)
     public FlvHandler flvHandler() {
@@ -103,10 +74,6 @@ public class MediaServerAutoConfiguration {
         return new FlvHandler();
     }
 
-    /**
-     * 创建 MediaService Bean
-     * @return MediaService 实例
-     */
     @Bean
     @ConditionalOnMissingBean(MediaService.class)
     public MediaService mediaService() {
@@ -114,22 +81,20 @@ public class MediaServerAutoConfiguration {
         return new MediaService();
     }
 
-    /**
-     * 创建 HlsService Bean
-     * @return HlsService 实例
-     */
     @Bean
     @ConditionalOnMissingBean(HlsService.class)
     public HlsService hlsService() {
         log.debug("创建 HlsService Bean");
-        return new HlsService();
+        return HlsService.getInstance();
     }
 
-    /**
-     * 创建 MediaServer Bean
-     * @param flvHandler FlvHandler 实例
-     * @return MediaServer 实例
-     */
+    @Bean
+    @ConditionalOnMissingBean(CameraService.class)
+    public CameraService cameraService() {
+        log.debug("创建CameraService Bean");
+        return CameraService.getInstance();
+    }
+
     @Bean
     @ConditionalOnMissingBean(MediaServer.class)
     public MediaServer mediaServer(FlvHandler flvHandler) {
@@ -137,60 +102,29 @@ public class MediaServerAutoConfiguration {
         return new MediaServer(flvHandler);
     }
 
-    /**
-     * 创建 MediaEngine Bean（核心引擎）
-     * @param mediaService MediaService 实例
-     * @param config 媒体配置
-     * @return MediaEngine 实例
-     */
-    @Bean
-    @ConditionalOnMissingBean(MediaEngine.class)
-    public MediaEngine mediaEngine(MediaService mediaService, BaseMediaConfig config) {
-        log.info("创建 MediaEngine Bean...");
-
-        // 使用 Loader 方式启动
-        MediaServerLoader.load(config);
-
-        MediaEngine engine = MediaServerLoader.getMediaEngine();
-        log.info("✅ MediaEngine 初始化完成");
-
-        return engine;
-    }
-
-    /**
-     * 创建 StreamManager Bean
-     * @param mediaService MediaService 实例
-     * @return StreamManager 实例
-     */
-    @Bean
-    @ConditionalOnMissingBean(StreamManager.class)
-    public StreamManager streamManager(MediaService mediaService) {
-        log.debug("创建 StreamManager Bean");
-        return new StreamManager(mediaService);
-    }
-
-    /**
-     * 创建 SpringMediaEngine Bean（高层封装，推荐使用）
-     * 自动依赖注入，无需用户手动配置
-     * 
-     * @param mediaService MediaService 实例
-     * @param config 媒体配置
-     * @param streamManager StreamManager 实例
-     * @return SpringMediaEngine 实例
-     */
     @Bean
     @ConditionalOnMissingBean(SpringMediaEngine.class)
-    public SpringMediaEngine springMediaEngine(MediaService mediaService,
-                                                BaseMediaConfig config,
-                                                StreamManager streamManager) {
+    public SpringMediaEngine springMediaEngine(InitConfig initConfig,
+                                                MediaService mediaService,
+                                                HlsService hlsService,
+                                                CameraService cameraService,
+                                                MediaServer mediaServer) {
         log.info("🚀 初始化 SpringMediaEngine...");
-        
+
+        EZF2JEngine.init(initConfig);
+
         SpringMediaEngine engine = new SpringMediaEngine();
         engine.setMediaService(mediaService);
-        engine.setConfig(config);
-        engine.setStreamManager(streamManager);
+        engine.setHlsService(hlsService);
+        engine.setCameraService(cameraService);
+        engine.setMediaServer(mediaServer);
+        engine.setConfig(initConfig);
+
+        log.info("✅ SpringMediaEngine 初始化完成");
+        log.info("   端口：{}, 服务名称：{}", properties.getPort(), properties.getServerName());
+        log.info("   FLV 路径：{}, HLS 路径：{}", properties.getFlvPath(), properties.getHlsPath());
+        log.info("   启用 FFmpeg: {}, 启用 HLS: {}", properties.isEnableFFmpeg(), properties.isEnableHls());
         
-        log.info("✅ SpringMediaEngine 已就绪，可通过 @Autowired 注入使用");
         return engine;
     }
 }

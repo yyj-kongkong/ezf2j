@@ -1,0 +1,26 @@
+
+server:
+  port: 9123
+
+# EZF2J 媒体服务器配置
+ezf2j:
+  media:
+   enabled: true
+   port: 4567
+   server-name: "EZ-F2J Demo Server"
+   flv-path: "/live"
+   hls-path: "/hls"
+   auto-close: true
+   no-clients-duration: 60000
+   enable-ffmpeg: false
+   enable-hls: false
+
+## Spring相关配置
+spring:
+#  # 关闭代码修改自动重启
+#  devtools:
+#    restart:
+#      enabled: false
+#  # 激活prod环境配置
+#  profiles:
+#    active: prod

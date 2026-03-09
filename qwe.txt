@@ -1,0 +1,16 @@
+<server>
+	<id>${server}</id>
+	<username>BLI1Ov</username>
+	<password>W2DRtSVMI0e0szx6kWWFeiDFqUu9eFMK6</password>
+</server>
+
+
+用户名
+BLI1Ov
+密码
+W2DRtSVMI0e0szx6kWWFeiDFqUu9eFMK6
+用户名：密码 （base64）
+QkxJMU92OlcyRFJ0U1ZNSTBlMHN6eDZrV1dGZWlERnFVdTllRk1LNg==
+
+gpg --keyserver keyserver.ubuntu.com --send-keys 23F3EFDB1B27D29A
+gpg --keyserver keyserver.ubuntu.com --recv-keys 23F3EFDB1B27D29A

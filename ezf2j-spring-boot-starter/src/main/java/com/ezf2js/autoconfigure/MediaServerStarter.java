@@ -1,40 +1,28 @@
 package com.ezf2js.autoconfigure;
 
-import com.ezf2jc.engine.MediaEngine;
+import com.ez2fj.EZF2JEngine;
+import com.ez2fj.init.InitConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-/**
- * 媒体服务器启动器
- * Spring Boot 启动完成后自动运行
- *
- * @author ZJ
- */
 @Slf4j
 @Component
-public class MediaServerStarter implements ApplicationRunner {
+public class MediaServerStarter implements CommandLineRunner {
 
-    /**
-     * MediaEngine 实例（由 Spring 注入）
-     */
     @Autowired(required = false)
-    private MediaEngine mediaEngine;
+    private InitConfig initConfig;
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
-        if (mediaEngine != null) {
-            log.info("🚀 媒体服务器已启动，可以开始推流了");
-            log.info("WebSocket 地址：ws://{}:{}/live?url=<流地址>",
-                    mediaEngine.getConfig().getHost(),
-                    mediaEngine.getConfig().getPort());
-            log.info("HTTP-FLV 地址：http://{}:{}/live?url=<流地址>",
-                    mediaEngine.getConfig().getHost(),
-                    mediaEngine.getConfig().getPort());
+    public void run(String... args) throws Exception {
+        if (initConfig != null) {
+            log.info("🎯 使用配置启动 EZF2J 服务...");
+            EZF2JEngine.init(initConfig);
         } else {
-            log.warn("MediaEngine 未注入，请检查配置是否启用（ezf2j.media.enabled=true）");
+            log.info("🎯 使用默认配置启动 EZF2J 服务...");
+            EZF2JEngine.getInstance();
         }
+        log.info("✅ EZF2J 媒体服务器已启动");
     }
 }
